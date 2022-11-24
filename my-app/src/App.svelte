@@ -17,7 +17,7 @@
     </p>
   
     <p class="read-the-docs">
-      Github Repository containing the source. (<a href="https://github.com/plunzi/abonnements-calculator">click here</a>)
+      Github Repository containing the source. (<a href="https://github.com/Plunzi/svelte-subscriptions-exchange-calculator">click here</a>)
     </p>
   </div>
 </main>
