@@ -4,7 +4,7 @@
 
 <main>
   <div class="container">
-    <h1>Abonnements Calculator</h1>
+    <h1>Abonnement Calculator</h1>
   
     <div class="card">
       <Calculator />
@@ -23,29 +23,27 @@
 </main>
 
 <style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  h1 {
+    margin-block-start: 0rem;
+    margin-block-end: 2rem;
+  }
+
   .read-the-docs {
     color: #888;
   }
+  
   :global(body) {
-    background-image: url("/img/background.svg");
-    background-size: 20rem;
-    background-repeat: repeat 0 0;
-    background-color: black;
+    background-color: #f7f8fc;
   }
 
   main {
     padding: 2rem;
-  }
-
-  .container {
-    width: 100%;
-    height: 100%;
-    background-color: rgb(0, 0, 0);
-    border-radius: 1rem;
-    padding: 1rem;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #888;
   }
 
   @media only screen and (max-width: 500px) {

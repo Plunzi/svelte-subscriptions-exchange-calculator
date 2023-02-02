@@ -1,4 +1,6 @@
 <script>
+  // @ts-nocheck
+
   let AED = 3.6725;
   let AFN = 88.422797;
   let ALL = 114.144906;
@@ -336,16 +338,6 @@
 
   // logical functions
 
-  function addMoney(addAmount) {
-    console.log(addAmount);
-    if (addAmount != 0) {
-      payment = payment + amount / selCur;
-      localStorage.setItem("storeAmount", String(payment));
-      var output = payment * selCur;
-      rounded = Number(output.toFixed(2));
-    }
-  }
-
   function showMore() {
     let show = document.getElementById("show");
     let load = document.getElementById("load");
@@ -361,14 +353,53 @@
     rounded = Number(newOutput.toFixed(2));
   }
 
+  function toggleModules() {
+    let module = document.getElementById("settings");
+    let timeBasedModule = document.getElementById("ad-settings");
+
+    if (module.style.display == "flex") {
+      module.style.display = "none";
+      timeBasedModule.style.display = "none";
+    } else {
+      if (timeBasedModule.style.display == "block") {
+        module.style.display = "flex";
+        timeBasedModule.style.display = "none";
+      } else {
+        timeBasedModule.style.display = "block";
+      }
+    }
+  }
+
   // setup
+
+  let yearlyMoney = 0;
+  let dailyMoney = 0;
 
   let curName;
   let shown = "false";
   let amount;
   let money = Number(localStorage.getItem("storeAmount")) / EUR || Number(0);
   let payment = money;
-  amount = amount;
+  let useCase = undefined;
+  let selectCur = "€";
+  let selected;
+  let subscriptionArray =
+    JSON.parse(localStorage.getItem("subscriptionArrayValue")) || [];
+  console.log(subscriptionArray);
+
+  let selCur = EUR;
+  payment = money * selCur;
+  let roundedString = payment.toFixed(2);
+  let rounded = Number(roundedString);
+
+  const customContent1 = {
+    name: "Youtube",
+    type: "Normal Abo",
+    price: "9.99",
+    description:
+      "Youtube Premium is an addon to YouTube which lets you watch YouTube and YouTube Music offline, in the background and without ads.",
+    url: "https://img.freepik.com/premium-vector/red-youtube-logo-social-media-logo_197792-1803.jpg?w=200",
+  };
 
   let currency = [
     { name: "💶 EUR" },
@@ -377,10 +408,6 @@
     { name: "💷 GBP" },
     { name: "♾️ CUS" },
   ];
-  let selectCur = "€";
-  let selected;
-
-  // reactive components
 
   $: {
     if (selected == "💶 EUR") {
@@ -404,106 +431,664 @@
       selCusCur(GBP);
     }
     if (selected == "♾️ CUS") {
-      selectCur = curName || '';
+      selectCur = curName || "";
       showMore();
     }
   }
 
-  // first showcase
+  function run() {
+    // @ts-ignore
+    if (document.getElementById("subtract").value > 0) {
+      var output = payment * selCur;
+      // @ts-ignore
+      output = output - document.getElementById("subtract").value;
+      rounded = Number(output.toFixed(2));
+      // @ts-ignore
+      alert(
+        "Subtracting your amount by " +
+          document.getElementById("divide").value +
+          " equals to " +
+          rounded +
+          selectCur +
+          "."
+      );
+    }
 
-  let selCur = EUR;
-  payment = money * selCur;
-  let roundedString = payment.toFixed(2);
-  let rounded = Number(roundedString);
+    // @ts-ignore
+    if (document.getElementById("multiply").value > 0) {
+      var output = payment * selCur;
+      // @ts-ignore
+      output = output * document.getElementById("multiply").value;
+      rounded = Number(output.toFixed(2));
+      // @ts-ignore
+      alert(
+        "Multiplying your amount by " +
+          document.getElementById("divide").value +
+          " equals to " +
+          rounded +
+          selectCur +
+          "."
+      );
+    }
+
+    // @ts-ignore
+    if (document.getElementById("divide").value > 0) {
+      var output = payment * selCur;
+      // @ts-ignore
+      output = output / document.getElementById("divide").value;
+      rounded = Number(output.toFixed(2));
+      // @ts-ignore
+      alert(
+        "Dividing your amount by " +
+          document.getElementById("divide").value +
+          " equals to " +
+          rounded +
+          selectCur +
+          "."
+      );
+    }
+  }
+  //   ---------------------------   //
+  //                                 //
+  //   here is the new object code   //
+  //                                 //
+  //   ---------------------------   //
+
+  // Return table to view
+
+  function writeDownSubscriptions() {
+    const output = document.getElementById("provider");
+    let temp = "<tr><th>#</th><th>Usecase</th><th>Price</th></tr>";
+
+    function buildTableComponent(i) {
+      return (
+        "<tr><td>" +
+        (i + 1) +
+        "</td><td>" +
+        subscriptionArray[i].name +
+        "</td><td>" +
+        subscriptionArray[i].price +
+        "€" +
+        "</td></tr>"
+      );
+    }
+
+    for (let i = 0; i < subscriptionArray.length; i++) {
+      temp += buildTableComponent(i);
+    }
+
+    output.innerHTML = temp;
+  }
+
+  // add money to view and local storage
+
+  function addMoney(addAmount) {
+    console.log(addAmount);
+    if (addAmount != 0) {
+      payment = payment + amount / selCur;
+      localStorage.setItem("storeAmount", String(payment));
+      var output = payment * selCur;
+      rounded = Number(output.toFixed(2));
+    }
+  }
+
+  // send predefined value to addMoney function
+
+  function addSub(parm) {
+    amount = parm;
+    addMoney();
+  }
+
+  // creates Object with name and price
+
+  function createObject(name, price) {
+    return new Object({
+      id: subscriptionArray.length,
+      name: name,
+      price: price,
+    });
+  }
+
+  // starter function, this collects data from the input fields and feeds components with the correct values.
+
+  function saveSubscription(name, price) {
+    subscriptionArray.push(createObject(name, price));
+    addSub(price);
+    console.log(subscriptionArray);
+    console.log(subscriptionArray[subscriptionArray.length - 1]);
+    writeDownSubscriptions();
+    localStorage.setItem(
+      "subscriptionArrayValue",
+      JSON.stringify(subscriptionArray)
+    );
+  }
+
+  // function which removes specified item from list
+
+  function deleteSubscriptionItem(parm) {
+    addSub(-subscriptionArray[parm - 1].price);
+
+    subscriptionArray = subscriptionArray.filter((item) => item.id != parm - 1);
+    console.log(subscriptionArray);
+    writeDownSubscriptions();
+    localStorage.setItem(
+      "subscriptionArrayValue",
+      JSON.stringify(subscriptionArray)
+    );
+  }
+
+  //
+  // write down Subscriptions
+  //
+
+  onload = function () {
+    writeDownSubscriptions();
+  };
 </script>
 
-<div class="pay">
-  <div>
-    <h1>{rounded}{selectCur}</h1>
-    <p>/month</p>
+<section class="container">
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="settings" on:click={toggleModules}>
+    <a href="#modules">
+      <div>⚙️</div>
+    </a>
   </div>
-</div>
-<div class="userInput">
-  <div class="amount">
-    <input
-      class="selAmount"
-      type="number"
-      bind:value={amount}
-      placeholder="Enter Amount"
-    />
-    <input
-      class="selCurrency"
-      id="show"
-      type="text"
-      bind:value={curName}
-      placeholder="Other currency zB CHF"
-    />
-    <select bind:value={selected}>
-      {#each currency as currency}
-        <option>{currency.name}</option>
-      {/each}
-    </select>
+  <div id="settings" class="settings-2">
+    <div>Subtract</div>
+    <input id="subtract" type="number" class="tools-input" />
+    <div>Multiply</div>
+    <input id="multiply" type="number" class="tools-input" />
+    <div>Divide</div>
+    <input id="divide" type="number" class="tools-input" />
+    <button on:click={run}>GO</button>
   </div>
-  <div class="buttons">
-    <button on:click={() => addMoney(amount)}>
-      Add {amount||'0'}{selectCur} a month to calculator.
-    </button>
-    <button
-      id="load"
-      on:click={() => {
-        selCusCur(curName.toUpperCase());
-        console.log(String(rounded) + curName);
-      }}
-      >Load Custum
-    </button>
-    <button
-      on:click={() => {
-        localStorage.removeItem("storeAmount");
-        location.reload();
-      }}
-      >Clear
-    </button>
+  <div class="pay">
+    <div>
+      <h1>{rounded}{selectCur}</h1>
+      <p>/month</p>
+    </div>
   </div>
-</div>
+  <div class="userInput">
+    <div class="amount">
+      <input
+        class="selAmount"
+        type="number"
+        bind:value={amount}
+        placeholder="Amount"
+      />
+      <input
+        class="selCase"
+        type="text"
+        bind:value={useCase}
+        placeholder="Enter Reason"
+      />
+      <input
+        class="selCurrency"
+        id="show"
+        type="text"
+        bind:value={curName}
+        placeholder="Other currency f.e. CHF"
+      />
+      <select bind:value={selected}>
+        {#each currency as currency}
+          <option>{currency.name}</option>
+        {/each}
+      </select>
+    </div>
+    <div class="buttons">
+      <button on:click={() => saveSubscription(useCase || "undefined", amount)}>
+        Add {amount || "0"}{selectCur} a month to calculator.
+      </button>
+      <button
+        id="load"
+        on:click={() => {
+          selCusCur(curName.toUpperCase());
+          console.log(String(rounded) + curName);
+        }}
+        >Load Custum
+      </button>
+      <button
+        on:click={() => {
+          localStorage.removeItem("storeAmount");
+          localStorage.removeItem("subscriptionArrayValue");
+          location.reload();
+        }}
+        >Clear
+      </button>
+    </div>
+  </div>
+</section>
+
 <!--
-<div class="table-wrapper">
-  <div>
-    <table class="fl-table">
-      <thead>
-        <tr>
-          <th>Subscriptioname:</th>
-          <th>Paymentamount:</th>
-          <th>Created on</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Content 8</td>
-          <td>Content 8</td>
-          <td>Content 8</td>
-        </tr>
-        <tr>
-          <td>Content 9</td>
-          <td>Content 9</td>
-          <td>Content 9</td>
-        </tr>
-        <tr>
-          <td>Content 10</td>
-          <td>Content 10</td>
-          <td>Content 10</td>
-        </tr>
-      </tbody><tbody />
-    </table>
+
+  Additional input settings
+
+-->
+
+<section class="container" id="ad-settings">
+  <div class="additionInputElements">
+    <div class="additionInputElement">
+      <p class="additionInputHeader">Add daily costs.</p>
+      <div class="amount fit-content">
+        <input
+          bind:value={dailyMoney}
+          type="number"
+          id="daily"
+          placeholder="Amount"
+          class="leftInput"
+        />
+        <input
+          bind:value={useCase}
+          type="reason"
+          placeholder="Enter Reason"
+          class="rightInput"
+        />
+      </div>
+      <button
+        on:click={() =>
+          saveSubscription(useCase || "undefined", dailyMoney * 30.42)}
+        >Add {dailyMoney}{selectCur} a day to calculator</button
+      >
+    </div>
+    <div class="additionInputElement">
+      <p class="additionInputHeader">Add yearly costs.</p>
+      <div class="amount fit-content">
+        <input
+          bind:value={yearlyMoney}
+          type="number"
+          id="yearly"
+          placeholder="Amount"
+          class="leftInput"
+        />
+        <input
+          bind:value={useCase}
+          type="reason"
+          placeholder="Enter Reason"
+          class="rightInput"
+        />
+      </div>
+      <button
+        on:click={() =>
+          saveSubscription(useCase || "undefined", yearlyMoney / 12)}
+        >Add {yearlyMoney}{selectCur} a year to calculator</button
+      >
+    </div>
+    <div class="additionInputElement">
+      <div class="amount fit-content">
+        <input value="yearly" id="yearly" class="leftInput" />
+        <input
+          value={(payment * selCur * 12).toFixed(2)}
+          type="reason"
+          placeholder="Enter Reason"
+          class="rightInput"
+        />
+      </div>
+      <br />
+      <div class="amount fit-content">
+        <input value="daily" id="yearly" class="leftInput" />
+        <input
+          value={((payment * selCur) / 30.42).toFixed(2)}
+          type="reason"
+          placeholder="Enter Reason"
+          class="rightInput"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+
+  Predefined Components
+
+-->
+
+<div class="flex">
+  <section class="container">
+    <div class="subContent">
+      <div class="logo netflix" />
+
+      <div class="description ">
+        <h1>Netflix</h1>
+        <p>
+          Netflix is one of the most popular video streaming plattforms.<br
+          />They offer more than 4000 movies.
+        </p>
+
+        <div class="subContent">
+          <button on:click={() => saveSubscription("Netflix Basic", 7.99)}>
+            Basic Abo 7,99{selectCur}
+          </button>
+          <button on:click={() => saveSubscription("Netflix Standart", 12.99)}>
+            Standart Abo 12,99{selectCur}
+          </button>
+          <button on:click={() => saveSubscription("Netflix Premium", 17.99)}>
+            Premium Abo 17,99{selectCur}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container">
+    <div class="subContent">
+      <div class="logo disney" />
+      <div class="description ">
+        <h1>Disney+</h1>
+        <p>
+          Netflix is one of the most popular video streaming plattforms.<br
+          />They offer more than 4000 movies.
+        </p>
+
+        <div class="subContent">
+          <button on:click={() => saveSubscription("Disney+ Basic Abo", 8.99)}>
+            Basic Abo 8,99{selectCur}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container">
+    <div class="subContent">
+      <div class="logo prime" />
+      <div class="description ">
+        <h1>Prime Video</h1>
+        <p>
+          Netflix is one of the most popular video streaming plattforms.<br
+          />They offer more than 4000 movies.
+        </p>
+
+        <div class="subContent">
+          <button on:click={() => saveSubscription("Prime Video", 8.99)}>
+            Normal Abo 8,99{selectCur}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container ">
+    <div class="subContent">
+      <img class="logo custom" alt="logo" src={customContent1.url} />
+      <div class="description ">
+        <h1>{customContent1.name}</h1>
+        <p>
+          {customContent1.description}
+        </p>
+
+        <div class="subContent">
+          <button
+            on:click={() =>
+              saveSubscription("YouTube Premium (Android)", 12.99)}
+          >
+            Android Abo 12,99{selectCur}
+          </button>
+          <button
+            on:click={() => saveSubscription("YouTube Premium (IOS)", 15.99)}
+          >
+            IOS Abo 15,99{selectCur}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--
+
+  Table Components
+
+-->
+
+<div class="container">
+  <div class="removeFlexContainer">
+    <input id="deleteItem" placeholder="Enter ID" type="number" />
+    <button
+      on:click={() =>
+        deleteSubscriptionItem(document.getElementById("deleteItem").value)}
+      >Remove ID from list</button
+    >
   </div>
 </div>
+
+<!--
+
+  Table Components
+
 -->
+
+<div class="container">
+  <table id="provider" />
+</div>
 
 <!--lang="sass"-->
 <style>
   :root {
-    --inputColor: rgb(0, 0, 0);
+    --inputColor: rgb(255, 255, 255);
     --start-color: #7928ca;
     --end-color: #ff0080;
+  }
+
+  button:focus {
+    animation-name: click;
+    animation-duration: 0.5s;
+  }
+
+  @keyframes click {
+    0% {
+      transform: scale(1);
+    }
+    40%,
+    50% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  #ad-settings {
+    display: none;
+  }
+
+  .additionInputElements {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .additionInputElement {
+    display: grid;
+    align-items: center;
+    text-align: left;
+    width: fit-content;
+    background: #ebe9f0;
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  .fit-content {
+    width: fit-content;
+  }
+
+  .additionInputHeader {
+    margin-block-start: 0;
+  }
+
+  .leftInput,
+  .rightInput {
+    width: 100%;
+    max-width: 800px;
+    height: 2rem;
+    border-style: solid;
+    border-color: var(--inputColor);
+    border-width: 0.25rem;
+    color: rgb(0, 0, 0);
+    padding: 1rem;
+    min-height: 5vh;
+    max-height: 25vh;
+    font-size: larger;
+    border-radius: 0 1rem 1rem 0;
+    background-color: var(--inputColor);
+    border-right: none;
+    outline: none;
+    width: 16rem;
+  }
+
+  .leftInput {
+    width: 8rem;
+    border-right: solid 1px lightgray;
+    border-radius: 1rem 0 0 1rem;
+  }
+
+  .removeFlexContainer {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .removeFlexContainer button {
+    margin: 0;
+  }
+
+  .removeFlexContainer input {
+    border-radius: 1rem;
+    border: none;
+    padding: 1rem;
+    border-style: solid;
+    border-color: #888;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background-color: var(--inputColor);
+    outline: none;
+    color: #000;
+  }
+
+  #settings {
+    display: none;
+  }
+
+  .tools-input,
+  .tools-input:focus,
+  .tools-input:hover {
+    border-style: solid;
+    border-color: #888;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background-color: var(--inputColor);
+    outline: none;
+    color: #000;
+  }
+
+  .settings {
+    position: absolute;
+    padding: 1rem;
+    background-color: #ebe9f0;
+    font-size: 2rem;
+    border-radius: 1rem;
+    transition: all 0.5s;
+  }
+
+  .settings:hover {
+    background-color: #161616;
+  }
+
+  .settings-2 {
+    z-index: 3;
+    position: absolute;
+    padding: 1rem;
+    background-color: #ebe9f0;
+    font-size: 2rem;
+    border-radius: 1rem;
+    transition: all 0.5s;
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: rgba(152, 152, 152, 0.2) 0px 7px 29px 0px;
+  }
+
+  .settings-2 {
+    text-align: left;
+    font-size: 1.5rem;
+  }
+
+  .subContent button {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background-color: #ebe9f0;
+    color: rgb(136, 136, 136);
+    box-shadow: none;
+  }
+
+  .subContent button:hover {
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    box-shadow: none;
+  }
+
+  .description {
+    display: grid;
+    align-content: left;
+  }
+
+  .description button {
+    width: fit-content;
+    margin: 0;
+  }
+
+  .disney {
+    background-image: url(../assets/2cac747e785b868781e10e2dfba5f2af.jpg);
+    background-repeat: 0;
+    background-size: 100%;
+  }
+
+  .netflix {
+    background-image: url(../assets/Netflix-Symbol.png);
+    background-repeat: 0;
+    background-size: 100%;
+  }
+
+  .prime {
+    background-image: url(../assets/unnamed.png);
+    background-repeat: 0;
+    background-size: 100%;
+  }
+
+  .subContent {
+    gap: 1rem;
+    display: flex;
+  }
+
+  .logo {
+    background-color: rgb(224, 224, 224);
+    min-width: 3.5rem;
+    min-height: 3.5rem;
+    max-height: 3.5rem;
+    max-width: 3.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .flex {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    gap: 1rem;
+  }
+
+  .flex .container {
+    padding: 1rem;
+    transition: all 0.5s;
+  }
+
+  .flex .container:hover {
+    transform: translate(0px, -10px);
+  }
+
+  .flex .container h1 {
+    margin-block-start: 0;
+    margin-block-end: 0;
+  }
+
+  .flex .container p {
+    text-align: left;
   }
 
   h1 {
@@ -518,14 +1103,15 @@
   }
 
   .selAmount,
-  .selCurrency {
+  .selCurrency,
+  .selCase {
     width: 100%;
     max-width: 800px;
     height: 2rem;
     border-style: solid;
     border-color: var(--inputColor);
     border-width: 0.25rem;
-    color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
     padding: 1rem;
     min-height: 5vh;
     max-height: 25vh;
@@ -533,13 +1119,24 @@
     border-radius: 1rem 0 0 1rem;
     background-color: var(--inputColor);
     border-right: none;
+    outline: none;
+    width: 8rem;
+  }
+
+  .selCase {
+    border-radius: 0;
+    width: 16rem;
+    border-left: solid 1px lightgray;
+    border-right: solid 1px lightgray;
   }
 
   .selCurrency {
+    border-right: solid 1px lightgray;
     border-radius: 0;
     width: 0;
     transition: all 0.5s;
     display: none;
+    width: auto;
   }
 
   #load {
@@ -579,6 +1176,19 @@
     display: flex;
   }
 
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+    border-radius: 1rem;
+    padding: 1rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(246, 246, 246);
+    box-shadow: rgba(206, 206, 206, 0.2) 0px 7px 29px 0px;
+  }
+
   .pay div {
     margin: auto;
     display: flex;
@@ -588,6 +1198,7 @@
 
   .pay h1,
   .pay p {
+    color: #000;
     margin-block-start: 0;
     margin-block-end: 0;
   }
@@ -617,7 +1228,7 @@
     font-size: larger;
     border-radius: 0 1rem 1rem 0;
     background-color: var(--inputColor);
-    color: #fff;
+    color: rgb(0, 0, 0);
   }
 
   .pay h1 {
@@ -637,131 +1248,6 @@
     .pay p {
       font-size: 2rem;
       margin-bottom: 1rem;
-    }
-  }
-
-  /* Table Styles */
-
-  .table-wrapper {
-    margin-top: 3rem;
-  }
-
-  .table-wrapper div {
-    outline-style: solid;
-    outline-width: 2px;
-    outline-color: #333;
-    border-radius: 1.15rem;
-  }
-
-  .fl-table {
-    border-radius: 1rem;
-    font-size: 12px;
-    font-weight: normal;
-    border: none;
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 100%;
-    white-space: nowrap;
-    background-color: #161616;
-  }
-
-  .fl-table td,
-  .fl-table th {
-    text-align: center;
-    padding: 8px;
-    width: 33%;
-  }
-
-  .fl-table td {
-    font-size: 12px;
-  }
-
-  .fl-table thead th:nth-child(1),
-  .fl-table thead th:nth-child(2),
-  .fl-table thead th:nth-child(3) {
-    color: #ffffff;
-    background: #7928ca;
-    background-image: linear-gradient(90deg, #5eead4, #93c5fd);
-  }
-
-  .fl-table thead th:nth-child(1) {
-    border-radius: 1rem 0 0 0;
-  }
-
-  .fl-table thead th:nth-child(3) {
-    border-radius: 0 1rem 0 0;
-  }
-
-  .fl-table tr:nth-child(even) {
-    background: #1d1d1d;
-  }
-
-  /* Responsive */
-
-  @media (max-width: 767px) {
-    .fl-table {
-      display: block;
-      width: 100%;
-    }
-    .table-wrapper:before {
-      content: "Scroll horizontally >";
-      display: block;
-      text-align: right;
-      font-size: 11px;
-      color: white;
-      padding: 0 0 10px;
-    }
-    .fl-table thead,
-    .fl-table tbody,
-    .fl-table thead th {
-      display: block;
-    }
-    .fl-table thead th:last-child {
-      border-bottom: none;
-    }
-    .fl-table thead {
-      float: left;
-    }
-    .fl-table tbody {
-      width: auto;
-      position: relative;
-      overflow-x: auto;
-    }
-    .fl-table td,
-    .fl-table th {
-      padding: 20px 0.625em 0.625em 0.625em;
-      height: 60px;
-      vertical-align: middle;
-      box-sizing: border-box;
-      overflow-x: hidden;
-      overflow-y: auto;
-      width: 120px;
-      font-size: 13px;
-      text-overflow: ellipsis;
-    }
-    .fl-table thead th {
-      text-align: left;
-      border-bottom: 1px solid #f7f7f9;
-    }
-    .fl-table tbody tr {
-      display: table-cell;
-    }
-    .fl-table tbody tr:nth-child(odd) {
-      background: none;
-    }
-    .fl-table tr:nth-child(even) {
-      background: transparent;
-    }
-    .fl-table tr td:nth-child(odd) {
-      background: #f8f8f8;
-      border-right: 1px solid #e6e4e4;
-    }
-    .fl-table tr td:nth-child(even) {
-      border-right: 1px solid #e6e4e4;
-    }
-    .fl-table tbody td {
-      display: block;
-      text-align: center;
     }
   }
 </style>
